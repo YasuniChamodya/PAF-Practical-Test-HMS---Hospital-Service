@@ -36,8 +36,89 @@ $(document).on("click", "#btnSave", function(event) {
 	}
 
 	// If valid------------------------
-	$("#formHospital").submit();
+	var type = ($("#hidIHospIDSave").val() == "") ? "POST" : "PUT"; 
+	
+	$.ajax( 
+	{	url : "HospitalsAPI",  
+		type : type,  
+		data : $("#formHospital").serialize(),  
+		dataType : "text",  
+		complete : function(response, status)  
+		{   
+			onItemSaveComplete(response.responseText, status);  
+		} 
+	}); 
+	
 });
+
+function onItemSaveComplete(response, status) {  
+	
+	if (status == "success")  
+	{   
+		var resultSet = JSON.parse(response); 
+	 
+		if (resultSet.status.trim() == "success")   {
+			$("#alertSuccess").text("Successfully saved.");    
+			$("#alertSuccess").show(); 
+			$("#divHospitalsGrid").html(resultSet.data);   
+		} else if (resultSet.status.trim() == "error")   {    
+			$("#alertError").text(resultSet.data);    
+			$("#alertError").show();   } 
+	 
+	 } else if (status == "error")  {   
+		 $("#alertError").text("Error while saving.");   
+		 $("#alertError").show();  
+	 } else  {   
+		 $("#alertError").text("Unknown error while saving..");   
+		 $("#alertError").show();  
+	 } 
+	 	$("#hidIHospIDSave").val("");  
+	 	$("#formHospital")[0].reset();  
+	
+}
+
+
+$(document).on("click", ".btnRemove", function(event) {  
+	$.ajax(  
+	{   
+		url : "HospitalsAPI",   
+		type : "DELETE",   
+		data : "hospID=" + $(this).data("hospid"),   
+		dataType : "text",   
+		complete : function(response, status)   
+		{    
+			onItemDeleteComplete(response.responseText, status);   
+		}  
+	}); 
+}); 
+
+function onItemDeleteComplete(response, status) 
+{  
+	if (status == "success")  
+	{   
+		var resultSet = JSON.parse(response); 
+
+		if (resultSet.status.trim() == "success")   
+		{    
+			$("#alertSuccess").text("Successfully deleted.");    
+			$("#alertSuccess").show(); 
+			$("#divHospitalsGrid").html(resultSet.data);   
+		} else if (resultSet.status.trim() == "error")   
+		{    
+			$("#alertError").text(resultSet.data);    
+			$("#alertError").show();   
+		} 
+
+	 } else if (status == "error")  
+	 {   
+		 $("#alertError").text("Error while deleting.");   
+		 $("#alertError").show();  
+	 } else  
+	 {   
+		 $("#alertError").text("Unknown error while deleting..");   
+		 $("#alertError").show();  
+	 } 
+}
 
 // UPDATE
 $(document)
